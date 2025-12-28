@@ -191,10 +191,21 @@ export default function BudgetApp() {
 
   useEffect(() => {
     const initAuth = async () => {
-      if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-        await signInWithCustomToken(auth, __initial_auth_token);
-      } else {
-        await signInAnonymously(auth);
+      // Try anonymous auth first as it's less restricted for this context
+      try {
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+           await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+           await signInAnonymously(auth);
+        }
+      } catch (error) {
+        console.error("Auth error:", error);
+        // Fallback to anonymous if custom token fails
+        try {
+            await signInAnonymously(auth);
+        } catch(e) {
+            console.error("Fallback anonymous auth failed", e);
+        }
       }
     };
     initAuth();
