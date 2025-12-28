@@ -102,18 +102,18 @@ const INITIAL_CATEGORIES = [
 ];
 
 const INITIAL_TRANSACTIONS = [
-  { id: 'tx1', date: '2024-09-01', amount: 50000, categoryId: 'inc1', note: 'Salary' },
-  { id: 'tx2', date: '2024-09-02', amount: 18000, categoryId: 'inc2', note: 'Freelance Project' },
-  { id: 'tx3', date: '2024-09-05', amount: 1000, categoryId: 'bill1', note: 'August Bill' },
-  { id: 'tx4', date: '2024-09-05', amount: 15000, categoryId: 'bill2', note: 'Rent' },
-  { id: 'tx5', date: '2024-09-06', amount: 900, categoryId: 'bill3', note: 'Cylinder' },
-  { id: 'tx6', date: '2024-09-10', amount: 150, categoryId: 'exp4', note: 'Trip to market' },
-  { id: 'tx7', date: '2024-09-12', amount: 2500, categoryId: 'exp1', note: 'Big basket' },
-  { id: 'tx8', date: '2024-09-15', amount: 2000, categoryId: 'exp3', note: 'Sale shopping' },
-  { id: 'tx9', date: '2024-09-20', amount: 5000, categoryId: 'sav2', note: 'SIP' },
-  { id: 'tx10', date: '2024-09-21', amount: 25000, categoryId: 'sav1', note: 'Semester fee' },
-  { id: 'tx11', date: '2024-08-15', amount: 1500, categoryId: 'exp5', note: 'Independence Day Dinner' },
-  { id: 'tx12', date: '2024-08-01', amount: 50000, categoryId: 'inc1', note: 'August Salary' },
+  { id: 'tx1', date: '2025-09-01', amount: 50000, categoryId: 'inc1', note: 'Salary' },
+  { id: 'tx2', date: '2025-09-02', amount: 18000, categoryId: 'inc2', note: 'Freelance Project' },
+  { id: 'tx3', date: '2025-09-05', amount: 1000, categoryId: 'bill1', note: 'August Bill' },
+  { id: 'tx4', date: '2025-09-05', amount: 15000, categoryId: 'bill2', note: 'Rent' },
+  { id: 'tx5', date: '2025-09-06', amount: 900, categoryId: 'bill3', note: 'Cylinder' },
+  { id: 'tx6', date: '2025-09-10', amount: 150, categoryId: 'exp4', note: 'Trip to market' },
+  { id: 'tx7', date: '2025-09-12', amount: 2500, categoryId: 'exp1', note: 'Big basket' },
+  { id: 'tx8', date: '2025-09-15', amount: 2000, categoryId: 'exp3', note: 'Sale shopping' },
+  { id: 'tx9', date: '2025-09-20', amount: 5000, categoryId: 'sav2', note: 'SIP' },
+  { id: 'tx10', date: '2025-09-21', amount: 25000, categoryId: 'sav1', note: 'Semester fee' },
+  { id: 'tx11', date: '2025-08-15', amount: 1500, categoryId: 'exp5', note: 'Independence Day Dinner' },
+  { id: 'tx12', date: '2025-08-01', amount: 50000, categoryId: 'inc1', note: 'August Salary' },
 ];
 
 const PRIORITIES = [
@@ -165,7 +165,10 @@ export default function BudgetApp() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [categories, setCategories] = useState([]);
   const [transactions, setTransactions] = useState([]);
-  const [currentDate, setCurrentDate] = useState(new Date('2024-09-01'));
+  const [currentDate, setCurrentDate] = useState(() => {
+    const d = new Date();
+    return new Date(d.getFullYear(), d.getMonth(), 1);
+  });
   const [currency] = useState('₹');
   const [darkMode, setDarkMode] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
