@@ -59,10 +59,10 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-// Initialize Firebase only if config is present to prevent crash during build
-const app = firebaseConfig.apiKey ? initializeApp(firebaseConfig) : null;
-const auth = app ? getAuth(app) : null;
-const db = app ? getFirestore(app) : null;
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+// const appId = 'Tracker-web'; // Fixed ID for your app
 
 // Use a static ID or environment variable for the app namespace
 const appId = 'budget-tracker-production';
