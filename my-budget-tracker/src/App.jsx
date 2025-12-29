@@ -38,6 +38,9 @@ import {
   PiggyBank, 
   Calculator
 } from 'lucide-react';
+import TrackerInfo from './pages/TrackerInfo.jsx';
+import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
+import TermsAndConditions from './pages/TermsAndConditions.jsx';
 import { initializeApp } from 'firebase/app';
 import { 
   getAuth, 
@@ -232,7 +235,13 @@ const StaticPage = ({ title, content }) => (
   <div className="min-h-screen bg-slate-50 p-6 md:p-12 font-sans text-slate-800">
     <div className="max-w-3xl mx-auto bg-white p-8 md:p-12 rounded-2xl shadow-sm border border-slate-100">
       <h1 className="text-3xl font-bold text-indigo-600 border-b border-slate-100 pb-6 mb-8">{title}</h1>
-      <div dangerouslySetInnerHTML={{ __html: content }} />
+      <div>
+        {typeof content === 'string' ? (
+          <div dangerouslySetInnerHTML={{ __html: content }} />
+        ) : (
+          content
+        )}
+      </div>
       <footer className="mt-12 text-center text-slate-400 text-sm border-t border-slate-100 pt-8">&copy; {new Date().getFullYear()} Budget Tracker App.</footer>
     </div>
   </div>
@@ -241,9 +250,9 @@ const StaticPage = ({ title, content }) => (
 const Footer = ({ darkMode }) => (
   <footer className={`mt-12 py-8 border-t text-center ${darkMode ? 'border-slate-800 text-slate-500' : 'border-slate-200 text-slate-400'}`}>
     <div className="flex justify-center gap-6 mb-4 text-sm font-medium">
-      <a href="/tracker-info" target="_blank" rel="noopener noreferrer" className={`flex items-center gap-1 hover:underline ${darkMode ? 'text-slate-400 hover:text-indigo-400' : 'text-slate-500 hover:text-indigo-600'}`}><Info className="w-4 h-4" /> Info & Guide</a>
-      <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className={`flex items-center gap-1 hover:underline ${darkMode ? 'text-slate-400 hover:text-indigo-400' : 'text-slate-500 hover:text-indigo-600'}`}><Shield className="w-4 h-4" /> Privacy Policy</a>
-      <a href="/terms-and-conditions" target="_blank" rel="noopener noreferrer" className={`flex items-center gap-1 hover:underline ${darkMode ? 'text-slate-400 hover:text-indigo-400' : 'text-slate-500 hover:text-indigo-600'}`}><FileText className="w-4 h-4" /> Terms & Conditions</a>
+      <a href="/tracker-info" onClick={(e) => { e.preventDefault(); history.pushState({}, '', '/tracker-info'); window.dispatchEvent(new PopStateEvent('popstate')); }} className={`flex items-center gap-1 hover:underline ${darkMode ? 'text-slate-400 hover:text-indigo-400' : 'text-slate-500 hover:text-indigo-600'}`}><Info className="w-4 h-4" /> Info & Guide</a>
+      <a href="/privacy-policy" onClick={(e) => { e.preventDefault(); history.pushState({}, '', '/privacy-policy'); window.dispatchEvent(new PopStateEvent('popstate')); }} className={`flex items-center gap-1 hover:underline ${darkMode ? 'text-slate-400 hover:text-indigo-400' : 'text-slate-500 hover:text-indigo-600'}`}><Shield className="w-4 h-4" /> Privacy Policy</a>
+      <a href="/terms-and-conditions" onClick={(e) => { e.preventDefault(); history.pushState({}, '', '/terms-and-conditions'); window.dispatchEvent(new PopStateEvent('popstate')); }} className={`flex items-center gap-1 hover:underline ${darkMode ? 'text-slate-400 hover:text-indigo-400' : 'text-slate-500 hover:text-indigo-600'}`}><FileText className="w-4 h-4" /> Terms & Conditions</a>
     </div>
     <p className="text-xs">&copy; {new Date().getFullYear()} Budget Tracker.</p>
   </footer>
@@ -1021,8 +1030,15 @@ const MainTracker = () => {
 
 export default function BudgetApp() {
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
-  if (currentPath === '/tracker-info') return <StaticPage title="Tracker Info & Guide" content={PAGES_CONTENT.info} />;
-  if (currentPath === '/privacy-policy') return <StaticPage title="Privacy Policy" content={PAGES_CONTENT.privacy} />;
-  if (currentPath === '/terms-and-conditions') return <StaticPage title="Terms and Conditions" content={PAGES_CONTENT.terms} />;
+
+  useEffect(() => {
+    const onPop = () => setCurrentPath(window.location.pathname);
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
+  if (currentPath === '/tracker-info') return <StaticPage title="Tracker Info & Guide" content={<TrackerInfo />} />;
+  if (currentPath === '/privacy-policy') return <StaticPage title="Privacy Policy" content={<PrivacyPolicy />} />;
+  if (currentPath === '/terms-and-conditions') return <StaticPage title="Terms and Conditions" content={<TermsAndConditions />} />;
   return <MainTracker />;
 }
