@@ -38,9 +38,6 @@ import {
   PiggyBank, 
   Calculator
 } from 'lucide-react';
-import TrackerInfo from './pages/TrackerInfo.jsx';
-import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
-import TermsAndConditions from './pages/TermsAndConditions.jsx';
 import { initializeApp } from 'firebase/app';
 import { 
   getAuth, 
@@ -64,24 +61,12 @@ import {
   writeBatch
 } from 'firebase/firestore';
 
-// --- UPDATED CONFIGURATION FOR VERCEL ---
-// We use import.meta.env to access variables in Vite/Vercel
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_API_KEY,
-  authDomain: import.meta.env.VITE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_APP_ID
-};
-
+// --- FIREBASE CONFIGURATION ---
+const firebaseConfig = JSON.parse(__firebase_config);
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-// const appId = 'Tracker-web'; // Fixed ID for your app
-
-// Use a static ID or environment variable for the app namespace
-const appId = 'budget-tracker-production';
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'budget-tracker';
 
 // --- MOCK DATA ---
 const INITIAL_CATEGORIES = [
@@ -142,7 +127,7 @@ const COLORS = {
 const CHART_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#f43f5e', '#8b5cf6', '#ec4899', '#6366f1', '#14b8a6'];
 
 // --- API ---
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY; 
+const apiKey = ""; 
 
 async function callGemini(prompt) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
@@ -235,13 +220,7 @@ const StaticPage = ({ title, content }) => (
   <div className="min-h-screen bg-slate-50 p-6 md:p-12 font-sans text-slate-800">
     <div className="max-w-3xl mx-auto bg-white p-8 md:p-12 rounded-2xl shadow-sm border border-slate-100">
       <h1 className="text-3xl font-bold text-indigo-600 border-b border-slate-100 pb-6 mb-8">{title}</h1>
-      <div>
-        {typeof content === 'string' ? (
-          <div dangerouslySetInnerHTML={{ __html: content }} />
-        ) : (
-          content
-        )}
-      </div>
+      <div dangerouslySetInnerHTML={{ __html: content }} />
       <footer className="mt-12 text-center text-slate-400 text-sm border-t border-slate-100 pt-8">&copy; {new Date().getFullYear()} Budget Tracker App.</footer>
     </div>
   </div>
@@ -250,9 +229,9 @@ const StaticPage = ({ title, content }) => (
 const Footer = ({ darkMode }) => (
   <footer className={`mt-12 py-8 border-t text-center ${darkMode ? 'border-slate-800 text-slate-500' : 'border-slate-200 text-slate-400'}`}>
     <div className="flex justify-center gap-6 mb-4 text-sm font-medium">
-      <a href="/tracker-info" onClick={(e) => { e.preventDefault(); history.pushState({}, '', '/tracker-info'); window.dispatchEvent(new PopStateEvent('popstate')); }} className={`flex items-center gap-1 hover:underline ${darkMode ? 'text-slate-400 hover:text-indigo-400' : 'text-slate-500 hover:text-indigo-600'}`}><Info className="w-4 h-4" /> Info & Guide</a>
-      <a href="/privacy-policy" onClick={(e) => { e.preventDefault(); history.pushState({}, '', '/privacy-policy'); window.dispatchEvent(new PopStateEvent('popstate')); }} className={`flex items-center gap-1 hover:underline ${darkMode ? 'text-slate-400 hover:text-indigo-400' : 'text-slate-500 hover:text-indigo-600'}`}><Shield className="w-4 h-4" /> Privacy Policy</a>
-      <a href="/terms-and-conditions" onClick={(e) => { e.preventDefault(); history.pushState({}, '', '/terms-and-conditions'); window.dispatchEvent(new PopStateEvent('popstate')); }} className={`flex items-center gap-1 hover:underline ${darkMode ? 'text-slate-400 hover:text-indigo-400' : 'text-slate-500 hover:text-indigo-600'}`}><FileText className="w-4 h-4" /> Terms & Conditions</a>
+      <a href="/tracker-info" target="_blank" rel="noopener noreferrer" className={`flex items-center gap-1 hover:underline ${darkMode ? 'text-slate-400 hover:text-indigo-400' : 'text-slate-500 hover:text-indigo-600'}`}><Info className="w-4 h-4" /> Info & Guide</a>
+      <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className={`flex items-center gap-1 hover:underline ${darkMode ? 'text-slate-400 hover:text-indigo-400' : 'text-slate-500 hover:text-indigo-600'}`}><Shield className="w-4 h-4" /> Privacy Policy</a>
+      <a href="/terms-and-conditions" target="_blank" rel="noopener noreferrer" className={`flex items-center gap-1 hover:underline ${darkMode ? 'text-slate-400 hover:text-indigo-400' : 'text-slate-500 hover:text-indigo-600'}`}><FileText className="w-4 h-4" /> Terms & Conditions</a>
     </div>
     <p className="text-xs">&copy; {new Date().getFullYear()} Budget Tracker.</p>
   </footer>
@@ -316,7 +295,7 @@ const DashboardView = ({ totals, currency, aiInsight, isAiLoading, generateInsig
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="p-6" darkMode={darkMode}>
           <h3 className={`text-lg font-bold mb-4 ${darkMode ? 'text-white' : 'text-slate-800'}`}>Plan vs Actual</h3>
-          <div className="h-64 w-full" style={{ minWidth: 0, minHeight: 0 }}>
+          <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={barChartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={darkMode ? '#334155' : '#e2e8f0'} />
@@ -332,7 +311,7 @@ const DashboardView = ({ totals, currency, aiInsight, isAiLoading, generateInsig
         </Card>
         <Card className="p-6" darkMode={darkMode}>
           <h3 className={`text-lg font-bold mb-4 ${darkMode ? 'text-white' : 'text-slate-800'}`}>Expense Breakdown</h3>
-          <div className="h-64 w-full" style={{ minWidth: 0, minHeight: 0 }}>
+          <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie data={pieChartData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
@@ -349,7 +328,7 @@ const DashboardView = ({ totals, currency, aiInsight, isAiLoading, generateInsig
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
          <Card className="p-6" darkMode={darkMode}>
           <h3 className={`text-lg font-bold mb-4 ${darkMode ? 'text-white' : 'text-slate-800'}`}>Daily Spending Trend</h3>
-          <div className="h-64 w-full" style={{ minWidth: 0, minHeight: 0 }}>
+          <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={lineChartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={darkMode ? '#334155' : '#e2e8f0'} />
@@ -379,6 +358,230 @@ const DashboardView = ({ totals, currency, aiInsight, isAiLoading, generateInsig
           </div>
         </Card>
       </div>
+    </div>
+  );
+};
+
+const TransactionsView = ({ transactions, categories, currency, currentMonthName, addTransaction, deleteTransaction, showMagicAdd, setShowMagicAdd, magicText, setMagicText, magicError, isAiLoading, handleMagicAdd, darkMode }) => {
+  const [newTx, setNewTx] = useState({ date: new Date().toISOString().split('T')[0], amount: '', categoryId: '', note: '' });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!newTx.amount || !newTx.categoryId) return;
+    addTransaction(newTx);
+    setNewTx({ ...newTx, amount: '', note: '' });
+  };
+
+  return (
+    <div className="space-y-6">
+      <Card className="p-6" darkMode={darkMode}>
+        <div className="flex justify-between items-center mb-6">
+           <h3 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-slate-800'}`}>Add Transaction</h3>
+           <button onClick={() => setShowMagicAdd(!showMagicAdd)} className="text-sm text-indigo-500 hover:text-indigo-600 font-medium flex items-center gap-1">
+             <Sparkles className="w-4 h-4" /> {showMagicAdd ? 'Hide AI' : 'Magic Add'}
+           </button>
+        </div>
+
+        {showMagicAdd && (
+          <div className={`mb-6 p-4 rounded-xl border ${darkMode ? 'bg-indigo-900/20 border-indigo-800' : 'bg-indigo-50 border-indigo-100'} animate-in slide-in-from-top-2 duration-200`}>
+            <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-indigo-300' : 'text-indigo-900'}`}>Tell AI what you spent (or earned)</label>
+            <div className="flex gap-2">
+              <input 
+                type="text" 
+                className={`flex-1 p-2 rounded-lg border outline-none ${darkMode ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200'}`}
+                placeholder="e.g., Spent 500 on groceries today"
+                value={magicText}
+                onChange={(e) => setMagicText(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleMagicAdd()}
+              />
+              <button 
+                onClick={handleMagicAdd}
+                disabled={isAiLoading}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50"
+              >
+                {isAiLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
+              </button>
+            </div>
+            {magicError && <p className="text-red-500 text-xs mt-2">{magicError}</p>}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+          <div>
+            <label className={`block text-xs font-medium mb-1 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Date</label>
+            <input type="date" required className={`w-full p-2 border rounded-lg outline-none text-sm ${darkMode ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200'}`} value={newTx.date} onChange={e => setNewTx({...newTx, date: e.target.value})} />
+          </div>
+          <div className="lg:col-span-1">
+             <label className={`block text-xs font-medium mb-1 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Category</label>
+             <select required className={`w-full p-2 border rounded-lg outline-none text-sm ${darkMode ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200'}`} value={newTx.categoryId} onChange={e => setNewTx({...newTx, categoryId: e.target.value})}>
+               <option value="">Select...</option>
+               {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+             </select>
+          </div>
+          <div>
+            <label className={`block text-xs font-medium mb-1 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Amount</label>
+            <input type="number" required min="0" step="0.01" className={`w-full p-2 border rounded-lg outline-none text-sm ${darkMode ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200'}`} placeholder="0.00" value={newTx.amount} onChange={e => setNewTx({...newTx, amount: e.target.value})} />
+          </div>
+          <div>
+            <label className={`block text-xs font-medium mb-1 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Note</label>
+            <input type="text" className={`w-full p-2 border rounded-lg outline-none text-sm ${darkMode ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200'}`} placeholder="Optional" value={newTx.note} onChange={e => setNewTx({...newTx, note: e.target.value})} />
+          </div>
+          <button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-lg flex items-center justify-center transition-colors h-[38px]"><Plus className="w-5 h-5" /></button>
+        </form>
+      </Card>
+
+      <div className="space-y-4">
+        <h3 className={`font-bold text-lg ${darkMode ? 'text-white' : 'text-slate-800'}`}>Transactions for {currentMonthName}</h3>
+        {transactions.length === 0 ? (
+          <div className={`text-center py-10 rounded-xl border border-dashed ${darkMode ? 'border-slate-800 text-slate-500' : 'border-slate-200 text-slate-400'}`}>
+            <Receipt className="w-10 h-10 mx-auto mb-2 opacity-50" />
+            <p>No transactions found for this month.</p>
+          </div>
+        ) : (
+          <div className="grid gap-3">
+            {transactions.map(tx => {
+              const cat = categories.find(c => c.id === tx.categoryId) || { name: 'Unknown', color: '#cbd5e1', type: 'expense' };
+              const isIncome = cat.type === 'income';
+              return (
+                <div key={tx.id} className={`p-4 rounded-xl border flex items-center justify-between group transition-colors ${darkMode ? 'bg-slate-800 border-slate-700 hover:border-slate-600' : 'bg-white border-slate-100 hover:border-indigo-100'}`}>
+                   <div className="flex items-center gap-4">
+                     <div className={`p-2 rounded-lg ${isIncome ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-600'}`}>
+                       {isIncome ? <TrendingUp className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />}
+                     </div>
+                     <div>
+                       <p className={`font-semibold ${darkMode ? 'text-slate-200' : 'text-slate-800'}`}>{cat.name}</p>
+                       <p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>{new Date(tx.date).toLocaleDateString()} • {tx.note || 'No note'}</p>
+                     </div>
+                   </div>
+                   <div className="flex items-center gap-4">
+                     <span className={`font-bold ${isIncome ? 'text-emerald-500' : (darkMode ? 'text-slate-200' : 'text-slate-800')}`}>
+                       {isIncome ? '+' : '-'}{currency}{tx.amount.toLocaleString()}
+                     </span>
+                     <button onClick={() => deleteTransaction(tx.id)} className="opacity-0 group-hover:opacity-100 p-2 text-slate-400 hover:text-red-500 transition-all">
+                       <Trash2 className="w-4 h-4" />
+                     </button>
+                   </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const BudgetView = ({ categories, categoryStats, currency, totals, updateCategoryPlan, updateCategoryPriority, setShowCategoryModal, currentMonthName, setCategoryToDelete, darkMode }) => {
+  const groupedCategories = {
+    income: categoryStats.filter(c => c.type === 'income'),
+    savings: categoryStats.filter(c => c.type === 'savings'),
+    bill: categoryStats.filter(c => c.type === 'bill'),
+    expense: categoryStats.filter(c => c.type === 'expense'),
+    debt: categoryStats.filter(c => c.type === 'debt'),
+  };
+
+  const getTypeLabel = (type) => {
+    switch(type) {
+      case 'income': return 'Income Streams';
+      case 'savings': return 'Savings Goals';
+      case 'bill': return 'Fixed Bills';
+      case 'expense': return 'Variable Expenses';
+      case 'debt': return 'Debt Payments';
+      default: return type;
+    }
+  };
+
+  const renderCategoryGroup = (type, items) => {
+    if (items.length === 0) return null;
+    return (
+      <div key={type} className="mb-8">
+        <h3 className={`font-bold text-lg mb-4 capitalize flex items-center gap-2 ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>
+          <div className={`w-2 h-6 rounded-full ${type === 'income' ? 'bg-emerald-500' : type === 'savings' ? 'bg-blue-500' : type === 'bill' ? 'bg-rose-500' : type === 'debt' ? 'bg-purple-500' : 'bg-amber-500'}`}></div>
+          {getTypeLabel(type)}
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {items.map(cat => {
+             const percent = cat.plan > 0 ? (cat.actual / cat.plan) * 100 : 0;
+             const isOver = cat.actual > cat.plan && type !== 'income';
+             return (
+               <Card key={cat.id} className={`p-4 border-l-4 ${type === 'income' ? 'border-l-emerald-500' : type === 'savings' ? 'border-l-blue-500' : type === 'bill' ? 'border-l-rose-500' : type === 'debt' ? 'border-l-purple-500' : 'border-l-amber-500'}`} darkMode={darkMode}>
+                 <div className="flex justify-between items-start mb-2">
+                   <div>
+                     <h4 className={`font-bold ${darkMode ? 'text-slate-200' : 'text-slate-800'}`}>{cat.name}</h4>
+                     <p className={`text-xs ${isOver ? 'text-red-500 font-bold' : (darkMode ? 'text-slate-400' : 'text-slate-500')}`}>
+                       {currency}{cat.actual.toLocaleString()} / {currency}{cat.plan.toLocaleString()}
+                     </p>
+                   </div>
+                   <button onClick={() => setCategoryToDelete(cat.id)} className={`text-slate-400 hover:text-red-500 ${darkMode ? 'hover:bg-slate-700' : 'hover:bg-slate-100'} p-1 rounded`}>
+                     <Trash2 className="w-4 h-4" />
+                   </button>
+                 </div>
+                 
+                 <div className="mb-3">
+                    <div className={`h-1.5 w-full rounded-full ${darkMode ? 'bg-slate-700' : 'bg-slate-100'}`}>
+                      <div 
+                        className={`h-full rounded-full transition-all duration-500 ${isOver ? 'bg-red-500' : (type === 'income' ? 'bg-emerald-500' : 'bg-indigo-500')}`} 
+                        style={{ width: `${Math.min(percent, 100)}%` }} 
+                      />
+                    </div>
+                 </div>
+
+                 <div className="grid grid-cols-2 gap-2 mt-4">
+                   <div>
+                     <label className={`block text-[10px] font-bold uppercase tracking-wider mb-1 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>Plan</label>
+                     <input 
+                       type="number" 
+                       className={`w-full p-1.5 text-xs border rounded bg-transparent outline-none ${darkMode ? 'border-slate-700 text-slate-300 focus:border-indigo-500' : 'border-slate-200 text-slate-700 focus:border-indigo-500'}`}
+                       value={cat.plan}
+                       onChange={(e) => updateCategoryPlan(cat.id, e.target.value)}
+                     />
+                   </div>
+                   <div>
+                     <label className={`block text-[10px] font-bold uppercase tracking-wider mb-1 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>Priority</label>
+                     <select 
+                       className={`w-full p-1.5 text-xs border rounded bg-transparent outline-none ${darkMode ? 'border-slate-700 text-slate-300 focus:border-indigo-500' : 'border-slate-200 text-slate-700 focus:border-indigo-500'}`}
+                       value={cat.priority}
+                       onChange={(e) => updateCategoryPriority(cat.id, e.target.value)}
+                     >
+                       {PRIORITIES.map(p => <option key={p} value={p} className={darkMode ? 'bg-slate-800' : 'bg-white'}>{p.split(':')[0]}</option>)}
+                     </select>
+                   </div>
+                 </div>
+               </Card>
+             );
+          })}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="space-y-6">
+       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+         <div>
+            <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-slate-800'}`}>Budget Plan</h3>
+            <p className={`text-sm ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Adjust your targets for {currentMonthName}</p>
+         </div>
+         <button onClick={() => setShowCategoryModal(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors">
+           <Plus className="w-4 h-4" /> Add Category
+         </button>
+       </div>
+
+       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="p-4 flex items-center justify-between border-l-4 border-l-emerald-500" darkMode={darkMode}>
+             <div><p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Total Income Plan</p><p className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>{currency}{totals.income.plan.toLocaleString()}</p></div>
+          </Card>
+          <Card className="p-4 flex items-center justify-between border-l-4 border-l-rose-500" darkMode={darkMode}>
+             <div><p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Total Spend Plan</p><p className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>{currency}{(totals.bills.plan + totals.expenses.plan + totals.debt.plan).toLocaleString()}</p></div>
+          </Card>
+          <Card className="p-4 flex items-center justify-between border-l-4 border-l-blue-500" darkMode={darkMode}>
+             <div><p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Total Savings Goal</p><p className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>{currency}{totals.savings.plan.toLocaleString()}</p></div>
+          </Card>
+       </div>
+
+       <div className="mt-8">
+         {['income', 'savings', 'bill', 'expense', 'debt'].map(type => renderCategoryGroup(type, groupedCategories[type]))}
+       </div>
     </div>
   );
 };
@@ -419,15 +622,15 @@ const InvestmentsView = ({ totals, currency, darkMode }) => {
         <Card className="p-6" darkMode={darkMode}>
           <h3 className={`text-lg font-bold mb-4 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-slate-800'}`}><PiggyBank className="w-5 h-5 text-emerald-500" /> Savings Projection</h3>
           <div className="flex flex-col justify-center h-full space-y-6">
-             <div className="text-center"><p className={`text-sm mb-1 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Projected 1 Year Savings</p><h2 className={`text-4xl font-bold ${darkMode ? 'text-white' : 'text-slate-800'}`}>{currency}{projectedSavings.toLocaleString()}</h2><p className="text-xs text-slate-400 mt-2">*Excluding interest</p></div>
-             <div className={`p-4 rounded-lg border ${darkMode ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'}`}><h4 className={`font-semibold mb-2 ${darkMode ? 'text-indigo-400' : 'text-indigo-600'}`}>Quick Tip</h4><p className={`text-sm ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>Investing just 20% of your monthly savings can beat inflation.</p></div>
+              <div className="text-center"><p className={`text-sm mb-1 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Projected 1 Year Savings</p><h2 className={`text-4xl font-bold ${darkMode ? 'text-white' : 'text-slate-800'}`}>{currency}{projectedSavings.toLocaleString()}</h2><p className="text-xs text-slate-400 mt-2">*Excluding interest</p></div>
+              <div className={`p-4 rounded-lg border ${darkMode ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'}`}><h4 className={`font-semibold mb-2 ${darkMode ? 'text-indigo-400' : 'text-indigo-600'}`}>Quick Tip</h4><p className={`text-sm ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>Investing just 20% of your monthly savings can beat inflation.</p></div>
           </div>
         </Card>
       </div>
       {investmentAdvice && (
         <Card className="p-6 border-indigo-100 bg-gradient-to-br from-white to-indigo-50 dark:from-slate-800 dark:to-slate-900 dark:border-slate-700" darkMode={darkMode}>
-           <h3 className={`text-xl font-bold mb-4 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-slate-800'}`}><Briefcase className="w-6 h-6 text-indigo-600" /> Recommendation</h3>
-           <div className={`prose max-w-none ${darkMode ? 'prose-invert' : ''}`} dangerouslySetInnerHTML={{ __html: investmentAdvice }} />
+            <h3 className={`text-xl font-bold mb-4 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-slate-800'}`}><Briefcase className="w-6 h-6 text-indigo-600" /> Recommendation</h3>
+            <div className={`prose max-w-none ${darkMode ? 'prose-invert' : ''}`} dangerouslySetInnerHTML={{ __html: investmentAdvice }} />
         </Card>
       )}
     </div>
@@ -497,61 +700,6 @@ const CalculatorsView = ({ darkMode }) => {
           )}
         </Card>
       </div>
-    </div>
-  );
-};
-
-const TransactionsView = ({ transactions, categories, currency, addTransaction, deleteTransaction, showMagicAdd, setShowMagicAdd, magicText, setMagicText, magicError, isAiLoading, handleMagicAdd, darkMode }) => {
-  const [newTx, setNewTx] = useState({ date: '', amount: '', categoryId: '', note: '' });
-
-  useEffect(() => {
-    if (!newTx.categoryId && categories && categories.length) {
-      setNewTx(tx => ({ ...tx, categoryId: categories[0].id }));
-    }
-  }, [categories]);
-
-  const submit = async (e) => {
-    e.preventDefault();
-    if (!newTx.amount || !newTx.date || !newTx.categoryId) return;
-    await addTransaction({ ...newTx, amount: parseFloat(newTx.amount) });
-    setNewTx({ date: '', amount: '', categoryId: categories?.[0]?.id || '', note: '' });
-  };
-
-  return (
-    <div className="space-y-6">
-      <Card className="p-6" darkMode={darkMode}>
-        <h3 className={`text-lg font-bold mb-4 ${darkMode ? 'text-white' : 'text-slate-800'}`}>Add Transaction</h3>
-        <form onSubmit={submit} className="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <input type="date" value={newTx.date} onChange={e => setNewTx({ ...newTx, date: e.target.value })} className={`p-2 border rounded-lg ${darkMode ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200'}`} />
-          <input type="number" placeholder="Amount" value={newTx.amount} onChange={e => setNewTx({ ...newTx, amount: e.target.value })} className={`p-2 border rounded-lg ${darkMode ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200'}`} />
-          <select value={newTx.categoryId} onChange={e => setNewTx({ ...newTx, categoryId: e.target.value })} className={`p-2 border rounded-lg ${darkMode ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200'}`}>
-            {categories.map(c => <option key={c.id} value={c.id}>{c.name} ({c.type})</option>)}
-          </select>
-          <div className="flex gap-2">
-            <input type="text" placeholder="Note" value={newTx.note} onChange={e => setNewTx({ ...newTx, note: e.target.value })} className={`flex-1 p-2 border rounded-lg ${darkMode ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200'}`} />
-            <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded-lg">Add</button>
-          </div>
-        </form>
-      </Card>
-
-      <Card className="p-6" darkMode={darkMode}>
-        <h3 className={`text-lg font-bold mb-4 ${darkMode ? 'text-white' : 'text-slate-800'}`}>Transactions</h3>
-        <div className="space-y-3">
-          {transactions.length === 0 && <p className={`text-sm ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>No transactions found.</p>}
-          {transactions.map(tx => (
-            <div key={tx.id} className={`flex items-center justify-between p-3 rounded-lg border ${darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}>
-              <div>
-                <div className={`font-medium ${darkMode ? 'text-white' : 'text-slate-800'}`}>{categories.find(c => c.id === tx.categoryId)?.name || 'Unknown'}</div>
-                <div className={`text-sm ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>{tx.note} — {new Date(tx.date).toLocaleDateString()}</div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className={`font-semibold ${tx.amount >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>{currency}{tx.amount.toLocaleString()}</div>
-                <button onClick={() => deleteTransaction(tx.id)} className="px-2 py-1 bg-red-600 text-white rounded-lg">Delete</button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </Card>
     </div>
   );
 };
@@ -937,11 +1085,11 @@ const MainTracker = () => {
       </aside>
 
       <div className={`md:hidden fixed bottom-0 left-0 right-0 border-t z-50 flex justify-around p-3 ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
-         <button onClick={() => setActiveTab('dashboard')} className={`p-2 rounded-lg ${activeTab === 'dashboard' ? 'text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-400' : 'text-slate-400'}`}><LayoutDashboard className="w-6 h-6"/></button>
-         <button onClick={() => setActiveTab('log')} className={`p-2 rounded-lg ${activeTab === 'log' ? 'text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-400' : 'text-slate-400'}`}><Receipt className="w-6 h-6"/></button>
-         <button onClick={() => setActiveTab('budget')} className={`p-2 rounded-lg ${activeTab === 'budget' ? 'text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-400' : 'text-slate-400'}`}><Target className="w-6 h-6"/></button>
-         <button onClick={() => setActiveTab('investments')} className={`p-2 rounded-lg ${activeTab === 'investments' ? 'text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-400' : 'text-slate-400'}`}><Briefcase className="w-6 h-6"/></button>
-         <button onClick={() => setActiveTab('calculators')} className={`p-2 rounded-lg ${activeTab === 'calculators' ? 'text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-400' : 'text-slate-400'}`}><Calculator className="w-6 h-6"/></button>
+          <button onClick={() => setActiveTab('dashboard')} className={`p-2 rounded-lg ${activeTab === 'dashboard' ? 'text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-400' : 'text-slate-400'}`}><LayoutDashboard className="w-6 h-6"/></button>
+          <button onClick={() => setActiveTab('log')} className={`p-2 rounded-lg ${activeTab === 'log' ? 'text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-400' : 'text-slate-400'}`}><Receipt className="w-6 h-6"/></button>
+          <button onClick={() => setActiveTab('budget')} className={`p-2 rounded-lg ${activeTab === 'budget' ? 'text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-400' : 'text-slate-400'}`}><Target className="w-6 h-6"/></button>
+          <button onClick={() => setActiveTab('investments')} className={`p-2 rounded-lg ${activeTab === 'investments' ? 'text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-400' : 'text-slate-400'}`}><Briefcase className="w-6 h-6"/></button>
+          <button onClick={() => setActiveTab('calculators')} className={`p-2 rounded-lg ${activeTab === 'calculators' ? 'text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-400' : 'text-slate-400'}`}><Calculator className="w-6 h-6"/></button>
       </div>
 
       <main className="flex-1 md:ml-64 p-6 lg:p-10 mb-20 md:mb-0 overflow-y-auto min-h-screen">
@@ -1085,15 +1233,8 @@ const MainTracker = () => {
 
 export default function BudgetApp() {
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
-
-  useEffect(() => {
-    const onPop = () => setCurrentPath(window.location.pathname);
-    window.addEventListener('popstate', onPop);
-    return () => window.removeEventListener('popstate', onPop);
-  }, []);
-
-  if (currentPath === '/tracker-info') return <StaticPage title="Tracker Info & Guide" content={<TrackerInfo />} />;
-  if (currentPath === '/privacy-policy') return <StaticPage title="Privacy Policy" content={<PrivacyPolicy />} />;
-  if (currentPath === '/terms-and-conditions') return <StaticPage title="Terms and Conditions" content={<TermsAndConditions />} />;
+  if (currentPath === '/tracker-info') return <StaticPage title="Tracker Info & Guide" content={PAGES_CONTENT.info} />;
+  if (currentPath === '/privacy-policy') return <StaticPage title="Privacy Policy" content={PAGES_CONTENT.privacy} />;
+  if (currentPath === '/terms-and-conditions') return <StaticPage title="Terms and Conditions" content={PAGES_CONTENT.terms} />;
   return <MainTracker />;
 }
